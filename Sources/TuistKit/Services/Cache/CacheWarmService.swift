@@ -12,11 +12,27 @@ final class CacheWarmService {
     private let configLoader: ConfigLoading
     private let manifestLoader: ManifestLoading
     private let pluginService: PluginServicing
+    private let manifestGraphLoader: ManifestGraphLoading
 
-    init() {
-        configLoader = ConfigLoader(manifestLoader: ManifestLoader())
-        manifestLoader = ManifestLoader()
-        pluginService = PluginService()
+    init(
+        configLoader: ConfigLoading = ConfigLoader(manifestLoader: ManifestLoader()),
+        manifestLoader: ManifestLoading = CachedManifestLoader(),
+        pluginService: PluginServicing = PluginService(),
+        manifestGraphLoader: ManifestGraphLoading
+    ) {
+        self.configLoader = configLoader
+        self.manifestLoader = manifestLoader
+        self.pluginService = pluginService
+        self.manifestGraphLoader = manifestGraphLoader
+    }
+    
+    convenience init() {
+        let manifestLoader = CachedManifestLoader()
+        self.init(
+            configLoader: ConfigLoader(manifestLoader: manifestLoader),
+            manifestLoader: manifestLoader,
+            manifestGraphLoader: ManifestGraphLoader(manifestLoader: manifestLoader)
+        )
     }
 
     func run(path: String?, profile: String?, xcframeworks: Bool, targets: Set<String>, dependenciesOnly: Bool) throws {
@@ -80,13 +96,8 @@ final class CacheWarmService {
     private func projectTargets(at path: AbsolutePath, config: Config) throws -> Set<String> {
         let plugins = try pluginService.loadPlugins(using: config)
         try manifestLoader.register(plugins: plugins)
-        let projects: [AbsolutePath]
-        if let workspace = try? manifestLoader.loadWorkspace(at: path) {
-            projects = workspace.projects.map { AbsolutePath(path, .init($0.pathString)) }
-        } else {
-            projects = [path]
-        }
-
-        return try Set(projects.flatMap { try manifestLoader.loadProject(at: $0).targets.map(\.name) })
+        let graph = try manifestGraphLoader.loadGraph(at: path)
+        let graphTraverser = GraphTraverser(graph: graph)
+        return Set(graphTraverser.rootTargets().map(\.target.name))
     }
 }

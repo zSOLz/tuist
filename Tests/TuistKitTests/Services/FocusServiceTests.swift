@@ -5,6 +5,7 @@ import TuistGraph
 import TuistLoader
 import XcodeProj
 import XCTest
+import TuistPluginTesting
 @testable import TuistCoreTesting
 @testable import TuistKit
 @testable import TuistLoaderTesting
@@ -13,10 +14,14 @@ import XCTest
 private typealias GeneratorParameters = (sources: Set<String>, xcframeworks: Bool, cacheProfile: TuistGraph.Cache.Profile, ignoreCache: Bool)
 
 final class FocusServiceTests: TuistUnitTestCase {
-    var subject: FocusService!
-    var opener: MockOpener!
-    var generator: MockGenerator!
-    var generatorFactory: MockGeneratorFactory!
+    private var subject: FocusService!
+    private var opener: MockOpener!
+    private var generator: MockGenerator!
+    private var generatorFactory: MockGeneratorFactory!
+    private var configLoader: MockConfigLoader!
+    private var manifestLoader: MockManifestLoader!
+    private var pluginService: MockPluginService!
+    private var manifestGraphLoader: MockManifestGraphLoader!
 
     override func setUp() {
         super.setUp()
@@ -24,7 +29,18 @@ final class FocusServiceTests: TuistUnitTestCase {
         generator = MockGenerator()
         generatorFactory = MockGeneratorFactory()
         generatorFactory.stubbedFocusResult = generator
-        subject = FocusService(opener: opener, generatorFactory: generatorFactory)
+        configLoader = MockConfigLoader()
+        manifestLoader = MockManifestLoader()
+        pluginService = MockPluginService()
+        manifestGraphLoader = MockManifestGraphLoader()
+        subject = FocusService(
+            configLoader: configLoader,
+            manifestLoader: manifestLoader,
+            opener: opener,
+            generatorFactory: generatorFactory,
+            pluginService: pluginService,
+            manifestGraphLoader: manifestGraphLoader
+        )
     }
 
     override func tearDown() {
@@ -32,6 +48,10 @@ final class FocusServiceTests: TuistUnitTestCase {
         generator = nil
         subject = nil
         generatorFactory = nil
+        configLoader = nil
+        manifestLoader = nil
+        pluginService = nil
+        manifestGraphLoader = nil
         super.tearDown()
     }
 
