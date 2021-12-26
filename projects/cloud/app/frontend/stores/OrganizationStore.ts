@@ -13,8 +13,8 @@ class OrganizationStore {
   client: ApolloClient<object>;
 
   constructor(client: ApolloClient<object>) {
-    this.client = client;
     makeAutoObservable(this);
+    this.client = client;
   }
 
   get members() {
