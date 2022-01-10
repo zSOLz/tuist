@@ -13,5 +13,7 @@ Rails.application.routes.draw do
   # React App
   root to: "application#app"
 
+  get "/invitations/:token/", to: "application#app", :as => :invitation
+
   get "/(*all)", to: "application#app"
 end
