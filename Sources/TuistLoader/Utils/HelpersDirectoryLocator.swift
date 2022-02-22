@@ -31,7 +31,18 @@ public final class HelpersDirectoryLocator: HelpersDirectoryLocating {
         let helpersDirectory = rootDirectory
             .appending(component: Constants.tuistDirectoryName)
             .appending(component: Constants.helpersDirectoryName)
-        if !FileHandler.shared.exists(helpersDirectory) { return nil }
+
+        if !FileHandler.shared.exists(helpersDirectory) {
+            let tuistDirectory = rootDirectory
+                .appending(component: Constants.tuistDirectoryName)
+
+            if FileHandler.shared.exists(tuistDirectory) {
+                let parentDirectory = at.removingLastComponent()
+                return locate(at: parentDirectory)
+            }
+
+            return nil
+        }
         return helpersDirectory
     }
 }
