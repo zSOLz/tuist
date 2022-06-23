@@ -2,11 +2,6 @@ import ArgumentParser
 import Foundation
 import TSCBasic
 
-enum FetchCategory: String, CaseIterable, RawRepresentable, ExpressibleByArgument {
-    case dependencies
-    case plugins
-}
-
 /// A command to fetch any remote content necessary to interact with the project.
 struct FetchCommand: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
@@ -29,10 +24,17 @@ struct FetchCommand: AsyncParsableCommand {
     )
     var update: Bool = false
 
+    @Flag(
+        name: .long,
+        help: "Fetch only plugins."
+    )
+    var pluginsOnly: Bool = false
+
     func run() async throws {
         try await FetchService().run(
             path: path,
-            update: update
+            update: update,
+            pluginsOnly: pluginsOnly
         )
     }
 }

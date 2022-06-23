@@ -4,9 +4,11 @@ import TuistPlugin
 public final class MockPluginService: PluginServicing {
     public init() {}
 
+    public var invokedLoadPlugins = false
     public var loadPluginsStub: (Config) -> Plugins = { _ in .none }
     public func loadPlugins(using config: Config) throws -> Plugins {
-        loadPluginsStub(config)
+        invokedLoadPlugins = true
+        return loadPluginsStub(config)
     }
 
     public var fetchRemotePluginsStub: ((Config) throws -> Void)?

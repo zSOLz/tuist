@@ -30,11 +30,14 @@ final class FetchService {
 
     func run(
         path: String?,
-        update: Bool
+        update: Bool,
+        pluginsOnly: Bool
     ) async throws {
         let path = self.path(path)
-
-        try await fetchDependencies(path: path, update: update, with: fetchPlugins(path: path))
+        let plugins = try await fetchPlugins(path: path)
+        if !pluginsOnly {
+            try fetchDependencies(path: path, update: update, with: plugins)
+        }
     }
 
     // MARK: - Helpers

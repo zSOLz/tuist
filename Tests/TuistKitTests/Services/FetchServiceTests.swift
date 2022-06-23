@@ -96,7 +96,8 @@ final class FetchServiceTests: TuistUnitTestCase {
         // When
         try await subject.run(
             path: stubbedPath.pathString,
-            update: true
+            update: true,
+            pluginsOnly: false
         )
 
         // Then
@@ -125,7 +126,8 @@ final class FetchServiceTests: TuistUnitTestCase {
         // When
         try await subject.run(
             path: nil,
-            update: false
+            update: false,
+            pluginsOnly: false
         )
 
         // Then
@@ -179,7 +181,8 @@ final class FetchServiceTests: TuistUnitTestCase {
         // When
         try await subject.run(
             path: stubbedPath.pathString,
-            update: false
+            update: false,
+            pluginsOnly: false
         )
 
         // Then
@@ -188,5 +191,23 @@ final class FetchServiceTests: TuistUnitTestCase {
         XCTAssertTrue(dependenciesController.invokedSave)
 
         XCTAssertFalse(dependenciesController.invokedUpdate)
+    }
+
+    func test_run_when_plugins_only() async throws {
+        // Given
+        let stubbedPath = try temporaryPath()
+        let stubbedSwiftVersion = TSCUtility.Version(5, 3, 0)
+        configLoader.loadConfigStub = { _ in Config.test(swiftVersion: stubbedSwiftVersion) }
+
+        // When
+        try await subject.run(
+            path: stubbedPath.pathString,
+            update: false,
+            pluginsOnly: true
+        )
+
+        // Then
+        XCTAssertFalse(dependenciesModelLoader.invokedLoadDependencies)
+        XCTAssertTrue(pluginService.invokedLoadPlugins)
     }
 }
