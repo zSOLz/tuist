@@ -31,6 +31,10 @@ public class RecursiveManifestLoader: RecursiveManifestLoading {
         self.fileHandler = fileHandler
     }
 
+    public func loadProject(at path: AbsolutePath) throws -> LoadedProjects {
+        try loadProjects(paths: [path])
+    }
+
     public func loadWorkspace(at path: AbsolutePath) throws -> LoadedWorkspace {
         let loadedWorkspace: ProjectDescription.Workspace?
         do {

@@ -255,6 +255,7 @@ let package = Package(
                 "GraphViz",
                 swiftGenKitDependency,
                 "StencilSwiftKit",
+                "TuistLoader",
             ]
         ),
         .target(
